@@ -1,4 +1,4 @@
-transformers == "4.37.0"
+transformers
 sentence-transformers == "2.2.2"
 huggingface-hub == "0.20.3"
 langchain == "0.1.2"
