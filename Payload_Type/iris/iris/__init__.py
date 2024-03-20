@@ -6,7 +6,7 @@ import sys
 # Get file paths of all modules.
 
 currentPath = Path(__file__)
-searchPath = currentPath.parent / "agent_functions" / "*.py"
+searchPath = currentPath.parent / "mythic" / "agent_functions" / "*.py"
 modules = glob.glob(f"{searchPath}")
 invalidate_caches()
 for x in modules:
