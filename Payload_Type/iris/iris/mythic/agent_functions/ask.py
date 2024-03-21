@@ -65,7 +65,7 @@ class AskCommand(CommandBase):
         reader = GraphQLReader(uri = uri, headers = headers)
         return reader.load_data(query, variables={})
     
-    def query_files(self):
+    def query_files(self, token):
         return SimpleDirectoryReader(
         "/Mythic/iris/iris/mythic/test_data/"
         ).load_data()
@@ -138,7 +138,7 @@ class AskCommand(CommandBase):
             print(e)
             raise Exception("Failed to get reranker")
 
-        index = VectorStoreIndex.from_documents(self.query_graphql(graphql_key), embed_model=embeddings)
+        index = VectorStoreIndex.from_documents(self.query_files(graphql_key), embed_model=embeddings)
 
         prompt_template = """
 ### System:
