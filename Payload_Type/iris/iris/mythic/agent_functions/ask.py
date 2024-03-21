@@ -88,7 +88,7 @@ class AskCommand(CommandBase):
             if buildParam.Name == "Embedding":
                 embedding_model = buildParam.Value
             if buildParam.Name == "Reranker":
-                embedding_model = buildParam.Value
+                reranker_model = buildParam.Value
 
 
         # searcher = MythicRPCPayloadSearchMessage(taskData.Callback.ID)
@@ -133,7 +133,7 @@ class AskCommand(CommandBase):
             raise Exception("Failed to get embedding model")
 
         try:
-            (rerank_tokenizer, rerank_model) = self.get_reranker(rerank_model, device)
+            (rerank_tokenizer, rerank_model) = self.get_reranker(reranker_model, device)
         except Exception as e:
             print(e)
             raise Exception("Failed to get reranker")
