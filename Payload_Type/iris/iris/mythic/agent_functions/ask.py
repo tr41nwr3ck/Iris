@@ -67,7 +67,7 @@ class AskCommand(CommandBase):
     
     def query_files(self, token):
         return SimpleDirectoryReader(
-        "/Mythic/iris/iris/mythic/test_data/"
+        "/Mythic/iris/mythic/agent_functions/test_data"
         ).load_data()
 
     async def create_go_tasking(self, taskData: PTTaskMessageAllData) -> PTTaskCreateTaskingMessageResponse:

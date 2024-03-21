@@ -73,16 +73,19 @@ class Iris(PayloadType):
         }
 
         # Check if path exists, if no download it.
+        print("Downloading Standard Model")
         try:
             llm_model_path = hf_hub_download(self.get_parameter("LLM"), filename=model_map[self.get_parameter("LLM")], local_files_only=True)
         except:
             llm_model_path = hf_hub_download(self.get_parameter("LLM"), filename=model_map[self.get_parameter("LLM")])
         
+        print("Downloading Embedding Model")
         try:
             embeddings = self.get_embeddings(self.get_parameter("Embedding"))
         except:
             print("Failed to get embedding model.")
 
+        print("Downloading Reranker Model")
         try:
             if torch.cuda.is_available():
             # traditional Nvidia cuda GPUs
