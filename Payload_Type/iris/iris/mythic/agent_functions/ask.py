@@ -81,14 +81,27 @@ class AskCommand(CommandBase):
         set_global_tokenizer(
             AutoTokenizer.from_pretrained("WhiteRabbitNeo/WhiteRabbitNeo-7B-v1.5a").encode
         )
-        searcher = MythicRPCPayloadSearchMessage(taskData.Callback.ID)
-        resp = await SendMythicRPCPayloadSearch(searcher)
 
-        if resp.Success:
-            payload = resp.Payloads[0]
-            model = payload.BuildParameters["LLM"]
-        else:
-            raise Exception("Failed to find payload parameters for iris")
+        for buildParam in taskData.BuildParameters:
+            if buildParam.Name == "LLM":
+                llm_model = buildParam.Value
+            if buildParam.Name == "Embedding":
+                embedding_model = buildParam.Value
+            if buildParam.Name == "Reranker":
+                embedding_model = buildParam.Value
+
+
+        # searcher = MythicRPCPayloadSearchMessage(taskData.Callback.ID)
+        # resp = await SendMythicRPCPayloadSearch(searcher)
+
+        # if resp.Success:
+        #     payload = resp.Payloads[0]
+
+
+
+        #     model = payload.BuildParameters["LLM"]
+        # else:
+        #     raise Exception("Failed to find payload parameters for iris")
         
         if GRAPHQL_API_KEY in taskData.Secrets:
             graphql_key = taskData.Secrets[GRAPHQL_API_KEY]
@@ -108,17 +121,17 @@ class AskCommand(CommandBase):
             n_gpu_layers = 0
 
         try:
-            llm_model_path = hf_hub_download(payload.BuildParameters["LLM"], filename=model_map[payload.BuildParameters["LLM"]], local_files_only=True)
+            llm_model_path = hf_hub_download(llm_model, filename=model_map[llm_model], local_files_only=True)
         except:
-            llm_model_path = hf_hub_download(payload.BuildParameters["LLM"], filename=model_map[payload.BuildParameters["LLM"]])
+            llm_model_path = hf_hub_download(llm_model, filename=model_map[llm_model])
 
         try:
-            embeddings = self.get_embeddings(payload.BuildParameters["Embedding"])
+            embeddings = self.get_embeddings(embedding_model)
         except:
             raise Exception("Failed to get embedding model")
 
         try:
-            (rerank_tokenizer, rerank_model) = self.get_reranker(payload.BuildParameters["Reranker"], device)
+            (rerank_tokenizer, rerank_model) = self.get_reranker(rerank_model, device)
         except:
             raise Exception("Failed to get reranker")
 
