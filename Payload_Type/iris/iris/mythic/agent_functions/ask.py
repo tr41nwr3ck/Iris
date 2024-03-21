@@ -228,7 +228,7 @@ class AskCommand(CommandBase):
 
 #         print(f"[+] Got response, returning: {chat_response}")
 
-        chat_response = await self.generate_text(self, llm_model_path, embeddings, graphql_key, n_gpu_layers, taskData)
+        chat_response = await self.generate_text(llm_model_path, embeddings, graphql_key, n_gpu_layers, taskData)
         await SendMythicRPCResponseCreate(MythicRPCResponseCreateMessage(
             TaskID=taskData.Task.ID,
             Response=chat_response,
