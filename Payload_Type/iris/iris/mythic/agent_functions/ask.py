@@ -9,6 +9,7 @@ from llama_index.core import set_global_tokenizer
 from huggingface_hub import hf_hub_download
 from llama_index.readers.graphql import GraphQLReader
 import torch
+import os
 
 
 GRAPHQL_API_KEY = "GRAPHQL_API_KEY"
@@ -107,6 +108,7 @@ class AskCommand(CommandBase):
         return (rerank_tokenizer, rerank_model)
     
     def query_graphql(self, token):
+        os.environ['REQUESTS_CA_BUNDLE'] = ''
         #uri = "https://mythic_nginx:7443/v1/graphql"
         uri = "https://10.30.26.115:7443/v1/graphql"
         headers = {
