@@ -86,7 +86,7 @@ class AskCommand(CommandBase):
 
         if resp.Success:
             payload = resp.Payloads[0]
-            model = payload.BuildParameters("LLM")
+            model = payload.BuildParameters["LLM"]
         else:
             raise Exception("Failed to find payload parameters for iris")
         
@@ -108,17 +108,17 @@ class AskCommand(CommandBase):
             n_gpu_layers = 0
 
         try:
-            llm_model_path = hf_hub_download(payload.BuildParameters("LLM"), filename=model_map[payload.BuildParameters("LLM")], local_files_only=True)
+            llm_model_path = hf_hub_download(payload.BuildParameters["LLM"], filename=model_map[payload.BuildParameters["LLM"]], local_files_only=True)
         except:
-            llm_model_path = hf_hub_download(payload.BuildParameters("LLM"), filename=model_map[payload.BuildParameters("LLM")])
+            llm_model_path = hf_hub_download(payload.BuildParameters["LLM"], filename=model_map[payload.BuildParameters["LLM"]])
 
         try:
-            embeddings = self.get_embeddings(payload.BuildParameters("Embedding"))
+            embeddings = self.get_embeddings(payload.BuildParameters["Embedding"])
         except:
             raise Exception("Failed to get embedding model")
 
         try:
-            (rerank_tokenizer, rerank_model) = self.get_reranker(payload.BuildParameters("Reranker"), device)
+            (rerank_tokenizer, rerank_model) = self.get_reranker(payload.BuildParameters["Reranker"], device)
         except:
             raise Exception("Failed to get reranker")
 
