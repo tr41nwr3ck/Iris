@@ -154,7 +154,7 @@ class Iris(PayloadType):
         else:
             await SendMythicRPCPayloadUpdatebuildStep(MythicRPCPayloadUpdateBuildStepMessage(
                 PayloadUUID=self.uuid,
-                StepName="Start",
+                StepName="Start Agent",
                 StepStdout="Agent started!",
                 StepSuccess=True
             )) 

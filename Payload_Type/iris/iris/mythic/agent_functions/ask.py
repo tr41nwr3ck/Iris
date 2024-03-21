@@ -49,6 +49,51 @@ class AskCommand(CommandBase):
     attributes = CommandAttributes(
     )
 
+
+    async def generate_text(self, llm_model_path, embeddings, graphql_key, n_gpu_layers, taskData):
+        print("[+] Querying Data.")
+        index = VectorStoreIndex.from_documents(self.query_files(graphql_key), embed_model=embeddings)
+
+        prompt_template = """
+### System:
+{system_message}
+### User:
+{prompt}
+### Assistant:
+    """
+        print("[+] Loading Model.")
+        llm = LlamaCPP(
+            # optionally, you can set the path to a pre-downloaded model instead of model_url
+            model_path=llm_model_path,
+            temperature=0.1,
+            max_new_tokens=256,
+            # llama2 has a context window of 4096 tokens, but we set it lower to allow for some wiggle room
+            context_window=3900,
+            # kwargs to pass to __call__()
+            generate_kwargs={},
+            # kwargs to pass to __init__()
+            # set to at least 1 to use GPU
+            model_kwargs={"n_gpu_layers": n_gpu_layers},
+            verbose=False,    
+        )
+        print("[+] Creating Chat Memory.")
+        memory = ChatMemoryBuffer.from_defaults(token_limit=1500)
+        prompt_template += f"""Question: {taskData.args.get_arg("question")}"""
+        single_turn_prompt = f"### System:\nYou are an AI Assistant who can answer technical questions based on information.\n### User:\n{prompt_template}\n### Assistant:\n"     
+        print("[+] Starting Chat Engine.")   
+        chat_engine = index.as_chat_engine(
+            chat_mode="context", #https://github.com/run-llama/llama_index/blob/2ba13544cd2583418cbeade5bea45ff1da7bb7b8/llama-index-core/llama_index/core/chat_engine/types.py#L298
+            memory=memory,
+            system_prompt=(
+                single_turn_prompt
+            ),
+            query_engine = index.as_query_engine(llm=llm),
+            llm=llm,
+        )
+        print(f"[+] Sending Prompt: {single_turn_prompt}")
+        chat_response = chat_engine.chat(single_turn_prompt)
+        return chat_response.response
+
     def get_embeddings(self, embedding_model):
         embeddings = HuggingFaceEmbeddings(model_name=embedding_model)
         return embeddings
@@ -140,48 +185,49 @@ class AskCommand(CommandBase):
 
         print("[+] All models downloaded.")
         print("[+] Querying Data.")
-        index = VectorStoreIndex.from_documents(self.query_files(graphql_key), embed_model=embeddings)
+#         index = VectorStoreIndex.from_documents(self.query_files(graphql_key), embed_model=embeddings)
 
-        prompt_template = """
-### System:
-{system_message}
-### User:
-{prompt}
-### Assistant:
-    """
-        print("[+] Loading Model.")
-        llm = LlamaCPP(
-            # optionally, you can set the path to a pre-downloaded model instead of model_url
-            model_path=llm_model_path,
-            temperature=0.1,
-            max_new_tokens=256,
-            # llama2 has a context window of 4096 tokens, but we set it lower to allow for some wiggle room
-            context_window=3900,
-            # kwargs to pass to __call__()
-            generate_kwargs={},
-            # kwargs to pass to __init__()
-            # set to at least 1 to use GPU
-            model_kwargs={"n_gpu_layers": n_gpu_layers},
-            verbose=False,    
-        )
-        print("[+] Creating Chat Memory.")
-        memory = ChatMemoryBuffer.from_defaults(token_limit=1500)
-        prompt_template += f"""Question: {taskData.args.get_arg("question")}"""
-        single_turn_prompt = f"### System:\nYou are an AI Assistant who can answer technical questions based on information.\n### User:\n{prompt_template}\n### Assistant:\n"     
-        print("[+] Starting Chat Engine.")   
-        chat_engine = index.as_chat_engine(
-            chat_mode="context", #https://github.com/run-llama/llama_index/blob/2ba13544cd2583418cbeade5bea45ff1da7bb7b8/llama-index-core/llama_index/core/chat_engine/types.py#L298
-            memory=memory,
-            system_prompt=(
-                single_turn_prompt
-            ),
-            query_engine = index.as_query_engine(llm=llm),
-            llm=llm,
-        )
-        print(f"[+] Sending Prompt: {single_turn_prompt}")
-        chat_response = chat_engine.chat(single_turn_prompt)
+#         prompt_template = """
+# ### System:
+# {system_message}
+# ### User:
+# {prompt}
+# ### Assistant:
+#     """
+#         print("[+] Loading Model.")
+#         llm = LlamaCPP(
+#             # optionally, you can set the path to a pre-downloaded model instead of model_url
+#             model_path=llm_model_path,
+#             temperature=0.1,
+#             max_new_tokens=256,
+#             # llama2 has a context window of 4096 tokens, but we set it lower to allow for some wiggle room
+#             context_window=3900,
+#             # kwargs to pass to __call__()
+#             generate_kwargs={},
+#             # kwargs to pass to __init__()
+#             # set to at least 1 to use GPU
+#             model_kwargs={"n_gpu_layers": n_gpu_layers},
+#             verbose=False,    
+#         )
+#         print("[+] Creating Chat Memory.")
+#         memory = ChatMemoryBuffer.from_defaults(token_limit=1500)
+#         prompt_template += f"""Question: {taskData.args.get_arg("question")}"""
+#         single_turn_prompt = f"### System:\nYou are an AI Assistant who can answer technical questions based on information.\n### User:\n{prompt_template}\n### Assistant:\n"     
+#         print("[+] Starting Chat Engine.")   
+#         chat_engine = index.as_chat_engine(
+#             chat_mode="context", #https://github.com/run-llama/llama_index/blob/2ba13544cd2583418cbeade5bea45ff1da7bb7b8/llama-index-core/llama_index/core/chat_engine/types.py#L298
+#             memory=memory,
+#             system_prompt=(
+#                 single_turn_prompt
+#             ),
+#             query_engine = index.as_query_engine(llm=llm),
+#             llm=llm,
+#         )
+#         print(f"[+] Sending Prompt: {single_turn_prompt}")
+#         chat_response = chat_engine.chat(single_turn_prompt)
 
-        print(f"[+] Got response, returning: {chat_response}")
+#         print(f"[+] Got response, returning: {chat_response}")
+        chat_response = await self.generate_text(self, llm_model_path, embeddings, graphql_key, n_gpu_layers, taskData)
         await SendMythicRPCResponseCreate(MythicRPCResponseCreateMessage(
             TaskID=taskData.Task.ID,
             Response=chat_response,
