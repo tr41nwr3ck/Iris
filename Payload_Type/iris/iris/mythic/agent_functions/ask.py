@@ -138,6 +138,8 @@ class AskCommand(CommandBase):
             print(e)
             raise Exception("Failed to get reranker")
 
+        print("[+] All models downloaded.")
+        print("[+] Querying Data.")
         index = VectorStoreIndex.from_documents(self.query_files(graphql_key), embed_model=embeddings)
 
         prompt_template = """
@@ -147,7 +149,7 @@ class AskCommand(CommandBase):
 {prompt}
 ### Assistant:
     """
-        
+        print("[+] Loading Model.")
         llm = LlamaCPP(
             # optionally, you can set the path to a pre-downloaded model instead of model_url
             model_path=llm_model_path,
@@ -162,9 +164,11 @@ class AskCommand(CommandBase):
             model_kwargs={"n_gpu_layers": n_gpu_layers},
             verbose=False,    
         )
+        print("[+] Creating Chat Memory.")
         memory = ChatMemoryBuffer.from_defaults(token_limit=1500)
         prompt_template += f"""Question: {taskData.args.get_arg("question")}"""
-        single_turn_prompt = f"### System:\nYou are an AI Assistant who can answer technical questions based on information.\n### User:\n{prompt_template}\n### Assistant:\n"        
+        single_turn_prompt = f"### System:\nYou are an AI Assistant who can answer technical questions based on information.\n### User:\n{prompt_template}\n### Assistant:\n"     
+        print("[+] Starting Chat Engine.")   
         chat_engine = index.as_chat_engine(
             chat_mode="context", #https://github.com/run-llama/llama_index/blob/2ba13544cd2583418cbeade5bea45ff1da7bb7b8/llama-index-core/llama_index/core/chat_engine/types.py#L298
             memory=memory,
@@ -174,14 +178,17 @@ class AskCommand(CommandBase):
             query_engine = index.as_query_engine(llm=llm),
             llm=llm,
         )
+        print(f"[+] Sending Prompt: {single_turn_prompt}")
         chat_response = chat_engine.chat(single_turn_prompt)
 
+        print(f"[+] Got response, returning: {chat_response}")
         await SendMythicRPCResponseCreate(MythicRPCResponseCreateMessage(
             TaskID=taskData.Task.ID,
             Response=chat_response,
         ))
         response.Success = True
 
+        print("[+] Done.")
         return response
 
     async def process_response(self, task: PTTaskMessageAllData, response: any) -> PTTaskProcessResponseMessageResponse:
