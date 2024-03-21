@@ -107,7 +107,8 @@ class AskCommand(CommandBase):
         return (rerank_tokenizer, rerank_model)
     
     def query_graphql(self, token):
-        uri = "https://mythic_nginx:7443/v1/graphql"
+        #uri = "https://mythic_nginx:7443/v1/graphql"
+        uri = "https://10.30.26.115:7443/v1/graphql"
         headers = {
             "content-type":"application/json",
             "x-hasura-admin-secret":token
