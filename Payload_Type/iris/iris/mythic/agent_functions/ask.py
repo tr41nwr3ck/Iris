@@ -122,17 +122,20 @@ class AskCommand(CommandBase):
 
         try:
             llm_model_path = hf_hub_download(llm_model, filename=model_map[llm_model], local_files_only=True)
-        except:
+        except Exception as e:
+            print(e)
             llm_model_path = hf_hub_download(llm_model, filename=model_map[llm_model])
 
         try:
             embeddings = self.get_embeddings(embedding_model)
-        except:
+        except Exception as e:
+            print(e)
             raise Exception("Failed to get embedding model")
 
         try:
             (rerank_tokenizer, rerank_model) = self.get_reranker(rerank_model, device)
-        except:
+        except Exception as e:
+            print(e)
             raise Exception("Failed to get reranker")
 
         index = VectorStoreIndex.from_documents(self.query_graphql(graphql_key), embed_model=embeddings)
