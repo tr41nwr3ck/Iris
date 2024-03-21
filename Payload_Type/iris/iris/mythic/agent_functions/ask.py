@@ -52,8 +52,11 @@ class AskCommand(CommandBase):
 
     async def generate_text(self, llm_model_path, embeddings, graphql_key, n_gpu_layers, taskData):
         print("[+] Querying Data.")
-        index = VectorStoreIndex.from_documents(self.query_files(graphql_key), embed_model=embeddings)
 
+        documents = []
+        documents.append(self.query_graphql(taskData.Secrets[GRAPHQL_API_KEY]))
+        index = VectorStoreIndex.from_documents(documents, embed_model=embeddings)
+        #index = VectorStoreIndex.from_documents(self.query_files(graphql_key), embed_model=embeddings)
         prompt_template = """
 ### System:
 {system_message}
@@ -105,8 +108,29 @@ class AskCommand(CommandBase):
     
     def query_graphql(self, token):
         uri = "https://mythic_nginx:7443"
-        headers = {}
-        query = """"""
+        headers = {
+            "content-type":"application/json",
+            "x-hasura-admin-secret":token
+        }
+        query = """query GetTasks {
+  task {
+    id
+    agent_task_id
+    callback_id
+    command_name
+    completed
+    display_params
+    display_id
+    is_interactive_task
+    operator_id
+    operation_id
+    responses {
+      id
+      response_escape
+    }
+    parent_task_id
+  }
+}"""
         reader = GraphQLReader(uri = uri, headers = headers)
         return reader.load_data(query, variables={})
     
