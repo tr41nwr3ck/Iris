@@ -28,7 +28,9 @@ class Iris(PayloadType):
     agent_code_path = pathlib.Path(".") / "iris"  / "agent_code"
     agent_icon_path = agent_path / "agent_functions" / "iris.svg"
     build_steps = [
-        BuildStep(step_name="Download Models", step_description="Downloading selected models"),
+        BuildStep(step_name="Download LLM", step_description="Downloading LLM"),
+        BuildStep(step_name="Download Embeddings", step_description="Downloading Embedding model"),
+        BuildStep(step_name="Download Reranker", step_description="Downloading Reranker model"),
         BuildStep(step_name="Start Agent", step_description="Starting agent callback"),
     ]
     build_parameters = [
@@ -74,6 +76,12 @@ class Iris(PayloadType):
 
         # Check if path exists, if no download it.
         print("Downloading Standard Model")
+        await SendMythicRPCPayloadUpdatebuildStep(MythicRPCPayloadUpdateBuildStepMessage(
+                PayloadUUID=self.uuid,
+                StepName="Download LLM",
+                StepStdout="Successfully downloaded {}".format(self.get_parameter("LLM"),),
+                StepSuccess=True
+            )) 
         try:
             llm_model_path = hf_hub_download(self.get_parameter("LLM"), filename=model_map[self.get_parameter("LLM")], local_files_only=True)
         except:
@@ -82,7 +90,19 @@ class Iris(PayloadType):
         print("Downloading Embedding Model")
         try:
             embeddings = self.get_embeddings(self.get_parameter("Embedding"))
+            await SendMythicRPCPayloadUpdatebuildStep(MythicRPCPayloadUpdateBuildStepMessage(
+                PayloadUUID=self.uuid,
+                StepName="Download Embeddings",
+                StepStdout="Succesfully downloaded {}".format(self.get_parameter("Embedding"),),
+                StepSuccess=True
+            )) 
         except:
+            await SendMythicRPCPayloadUpdatebuildStep(MythicRPCPayloadUpdateBuildStepMessage(
+                PayloadUUID=self.uuid,
+                StepName="Download Embeddings",
+                StepStdout="Failed to download {}".format(self.get_parameter("Embedding"),),
+                StepSuccess=False
+            )) 
             print("Failed to get embedding model.")
 
         print("Downloading Reranker Model")
@@ -97,7 +117,19 @@ class Iris(PayloadType):
                 device = torch.device("cpu")
 
             (rerank_tokenizer, rerank_model) = self.get_reranker(self.get_parameter("Reranker"), device)
+            await SendMythicRPCPayloadUpdatebuildStep(MythicRPCPayloadUpdateBuildStepMessage(
+                PayloadUUID=self.uuid,
+                StepName="Download Reranker",
+                StepStdout="Successfully downloaded {}".format(self.get_parameter("Reranker"),),
+                StepSuccess=True
+            )) 
         except:
+            await SendMythicRPCPayloadUpdatebuildStep(MythicRPCPayloadUpdateBuildStepMessage(
+                PayloadUUID=self.uuid,
+                StepName="Download Reranker",
+                StepStdout="Failed to download {}".format(self.get_parameter("Reranker"),),
+                StepSuccess=False
+            )) 
             print("Failed to get reranker")
 
         # this function gets called to create an instance of your payload
@@ -112,7 +144,19 @@ class Iris(PayloadType):
             IntegrityLevel=3,
         ))
         if not create_callback.Success:
+            await SendMythicRPCPayloadUpdatebuildStep(MythicRPCPayloadUpdateBuildStepMessage(
+                PayloadUUID=self.uuid,
+                StepName="Start",
+                StepStdout=f"Failed to start Agent: {create_callback.Error}",
+                StepSuccess=False
+            )) 
             logger.info(create_callback.Error)
         else:
+            await SendMythicRPCPayloadUpdatebuildStep(MythicRPCPayloadUpdateBuildStepMessage(
+                PayloadUUID=self.uuid,
+                StepName="Start",
+                StepStdout="Agent started!",
+                StepSuccess=True
+            )) 
             logger.info(create_callback.CallbackUUID)
         return resp
