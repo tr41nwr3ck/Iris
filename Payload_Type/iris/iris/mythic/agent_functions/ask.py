@@ -135,7 +135,7 @@ class AskCommand(CommandBase):
     parent_task_id
   }
 }"""
-        reader = GraphQLReader(uri = uri, headers = headers)
+        reader = IrisGraphQLReader(uri = uri, headers = headers)
         return reader.load_data(query, variables={})
     
     def query_files(self, token):
