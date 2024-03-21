@@ -232,21 +232,17 @@ class AskCommand(CommandBase):
             UpdateStatus = "Generating"
         ))
 
-
         chat_response = await self.generate_text(llm_model_path, embeddings, graphql_key, n_gpu_layers, taskData)
         await SendMythicRPCResponseCreate(MythicRPCResponseCreateMessage(
             TaskID=taskData.Task.ID,
             Response=chat_response,
         ))
         response.Success = True
-        await SendMythicRPCTaskUpdate(MythicRPCTaskUpdateMessage(
-            TaskID=taskData.Task.ID,
-            UpdateStatus = "Generating"
-        ))
         print("[+] Done.")
         await SendMythicRPCTaskUpdate(MythicRPCTaskUpdateMessage(
             TaskID=taskData.Task.ID,
-            UpdateCompleted = True
+            UpdateCompleted = True,
+            UpdateStatus = "completed"
         ))
         return response
 
