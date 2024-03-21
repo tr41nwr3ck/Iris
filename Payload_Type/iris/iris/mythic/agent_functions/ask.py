@@ -56,8 +56,8 @@ class AskCommand(CommandBase):
         print("[+] Querying Data.")
 
         documents = []
-        documents.append(self.query_graphql(taskData.Secrets[GRAPHQL_API_KEY]))
-        index = VectorStoreIndex.from_documents(documents, embed_model=embeddings)
+
+        index = VectorStoreIndex.from_documents(self.query_graphql(taskData.Secrets[GRAPHQL_API_KEY]), embed_model=embeddings)
         #index = VectorStoreIndex.from_documents(self.query_files(graphql_key), embed_model=embeddings)
         prompt_template = """
 ### System:
@@ -98,18 +98,14 @@ class AskCommand(CommandBase):
         print(f"[+] Sending Prompt: {single_turn_prompt}")
         chat_response = chat_engine.chat(single_turn_prompt)
         return chat_response.response
-
     def get_embeddings(self, embedding_model):
         embeddings = HuggingFaceEmbeddings(model_name=embedding_model)
         return embeddings
-
     def get_reranker(self, reranking_model, device):
         rerank_tokenizer = AutoTokenizer.from_pretrained(reranking_model)
         rerank_model = AutoModelForSequenceClassification.from_pretrained(reranking_model).to(device)
-        return (rerank_tokenizer, rerank_model)
-    
+        return (rerank_tokenizer, rerank_model)   
     def query_graphql(self, token):
-        os.environ['REQUESTS_CA_BUNDLE'] = ''
         #uri = "https://mythic_nginx:7443/v1/graphql"
         uri = "https://127.0.0.1:7443/v1/graphql"
         headers = {
@@ -212,7 +208,6 @@ class AskCommand(CommandBase):
             raise Exception("Failed to get reranker")
 
         print("[+] All models downloaded.")
-        print("[+] Querying Data.")
 #         index = VectorStoreIndex.from_documents(self.query_files(graphql_key), embed_model=embeddings)
 
 #         prompt_template = """
