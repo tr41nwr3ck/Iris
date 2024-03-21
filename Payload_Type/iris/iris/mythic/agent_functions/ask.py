@@ -7,7 +7,8 @@ from llama_index.core.memory import ChatMemoryBuffer
 from llama_index.llms.llama_cpp import LlamaCPP
 from llama_index.core import set_global_tokenizer
 from huggingface_hub import hf_hub_download
-from llama_index.readers.graphql import GraphQLReader
+#from llama_index.readers.graphql import GraphQLReader
+from .irisgraphql import IrisGraphQLReader
 import torch
 import os
 
