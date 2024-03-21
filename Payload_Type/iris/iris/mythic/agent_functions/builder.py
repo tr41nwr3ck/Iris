@@ -76,17 +76,18 @@ class Iris(PayloadType):
 
         # Check if path exists, if no download it.
         print("Downloading Standard Model")
+        try:
+            llm_model_path = hf_hub_download(self.get_parameter("LLM"), filename=model_map[self.get_parameter("LLM")], local_files_only=True)
+        except:
+            llm_model_path = hf_hub_download(self.get_parameter("LLM"), filename=model_map[self.get_parameter("LLM")])
+        
+
         await SendMythicRPCPayloadUpdatebuildStep(MythicRPCPayloadUpdateBuildStepMessage(
                 PayloadUUID=self.uuid,
                 StepName="Download LLM",
                 StepStdout="Successfully downloaded {}".format(self.get_parameter("LLM"),),
                 StepSuccess=True
             )) 
-        try:
-            llm_model_path = hf_hub_download(self.get_parameter("LLM"), filename=model_map[self.get_parameter("LLM")], local_files_only=True)
-        except:
-            llm_model_path = hf_hub_download(self.get_parameter("LLM"), filename=model_map[self.get_parameter("LLM")])
-        
         print("Downloading Embedding Model")
         try:
             embeddings = self.get_embeddings(self.get_parameter("Embedding"))
