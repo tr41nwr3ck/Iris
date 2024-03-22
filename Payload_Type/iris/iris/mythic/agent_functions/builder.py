@@ -37,8 +37,8 @@ class Iris(PayloadType):
         BuildParameter(
             name="LLM",
             parameter_type=BuildParameterType.ChooseOne,
-            choices=["TheBloke/neural-chat-7B-v3-3-GGUF"],
-            default_value="TheBloke/neural-chat-7B-v3-3-GGUF",
+            choices=["TheBloke/neural-chat-7B-v3-3-GGUF", "bartowski/WhiteRabbitNeo-7B-v1.5a-GGUF"],
+            default_value="bartowski/WhiteRabbitNeo-7B-v1.5a-GGUF",
             description="The base LLM model to use"
         ),
         BuildParameter(
@@ -72,6 +72,7 @@ class Iris(PayloadType):
     async def build(self) -> BuildResponse:
         model_map = {
             "TheBloke/neural-chat-7B-v3-3-GGUF": "neural-chat-7b-v3-3.Q5_K_M.gguf",
+            "bartowski/WhiteRabbitNeo-7B-v1.5a-GGUF": "WhiteRabbitNeo-7B-v1.5a-Q6_K.gguf",
         }
 
         # Check if path exists, if no download it.

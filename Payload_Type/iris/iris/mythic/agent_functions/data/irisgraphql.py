@@ -17,13 +17,13 @@ class IrisGraphQLReader(BaseReader):
         headers (Optional[Dict]): Optional http headers.
 
     """
-
     def __init__(
         self,
         uri: Optional[str] = None,
         headers: Optional[Dict] = None,
     ) -> None:
         """Initialize with parameters."""
+
         try:
             from gql import Client
             from gql.transport.requests import RequestsHTTPTransport
@@ -37,6 +37,7 @@ class IrisGraphQLReader(BaseReader):
                 headers = {}
             transport = RequestsHTTPTransport(url=uri, headers=headers, verify=False)
             self.client = Client(transport=transport, fetch_schema_from_transport=True)
+            self.documents: List[Document] = []  # Initialize an empty list of documents
 
     def load_data(self, query: str, variables: Optional[Dict] = None) -> List[Document]:
         """Run query with optional variables and turn results into documents.
@@ -57,15 +58,13 @@ class IrisGraphQLReader(BaseReader):
         if variables is None:
             variables = {}
 
-        documents = []
-
         result = self.client.execute(gql(query), variable_values=variables)
 
         for key in result:
             entry = result[key]
             if isinstance(entry, list):
-                documents.extend([Document(text=yaml.dump(v)) for v in entry])
+                self.documents.extend([Document(text=yaml.dump(v)) for v in entry])
             else:
-                documents.append(Document(text=yaml.dump(entry)))
+                self.documents.append(Document(text=yaml.dump(entry)))
 
-        return documents
+        return self.documents
