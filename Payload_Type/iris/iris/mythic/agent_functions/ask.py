@@ -101,6 +101,7 @@ class AskCommand(CommandBase):
         prompt_template += f"""Question: {taskData.args.get_arg("question")}"""
 
         ### Todo: Update this prompt to follow the right template based on LLM specified
+        # Prompt template can be found in the tokenizer_config.json file
         single_turn_prompt = f"<｜begin▁of▁sentence｜><|Assistant|>\nYou are an AI Assistant who can answer technical questions based on information.\n<|User|>\n{prompt_template}\n<|Assistant|><｜end▁of▁sentence｜>\n"     
         print("[+] Starting Chat Engine.")   
         chat_engine = index.as_chat_engine(
@@ -143,7 +144,8 @@ class AskCommand(CommandBase):
         config_map = {
             "TheBloke/neural-chat-7B-v3-3-GGUF" : "TheBloke/neural-chat-7B-v3-3-GGUF",
             "bartowski/WhiteRabbitNeo-7B-v1.5a-GGUF": "WhiteRabbitNeo/WhiteRabbitNeo-7B-v1.5a",
-            "BAAI/bge-reranker-base": "BAAI/bge-reranker-base"
+            "BAAI/bge-reranker-base": "BAAI/bge-reranker-base",
+            "BAAI/bge-reranker-v2-m3": "BAAI/bge-reranker-v2-m3"
         }
 
         for buildParam in taskData.BuildParameters:

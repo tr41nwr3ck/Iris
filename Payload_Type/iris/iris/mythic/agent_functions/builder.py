@@ -51,8 +51,8 @@ class Iris(PayloadType):
         BuildParameter(
             name="Reranker",
             parameter_type=BuildParameterType.ChooseOne,
-            choices=["BAAI/bge-reranker-base"],
-            default_value="BAAI/bge-reranker-base",
+            choices=["BAAI/bge-reranker-base", "BAAI/bge-reranker-v2-m3"],
+            default_value="BAAI/bge-reranker-v2-m3",
             description="The reranker model"
         ),
     ]
