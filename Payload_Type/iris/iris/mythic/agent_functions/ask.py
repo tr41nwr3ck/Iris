@@ -63,7 +63,7 @@ class AskCommand(CommandBase):
         
         # Get stuff from database
         await query_all_data(reader)
-        return reader
+        return reader.documents
 
     async def generate_text(self, llm_model_path, embeddings, n_gpu_layers, taskData):
         print("[+] Querying Data.")
