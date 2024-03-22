@@ -78,6 +78,10 @@ class AskCommand(CommandBase):
 ### Assistant:
     """
         print("[+] Loading Model.")
+        await SendMythicRPCTaskUpdate(MythicRPCTaskUpdateMessage(
+            TaskID=taskData.Task.ID,
+            UpdateStatus = "Generating response"
+        ))
         llm = LlamaCPP(
             # optionally, you can set the path to a pre-downloaded model instead of model_url
             model_path=llm_model_path,
@@ -188,7 +192,7 @@ class AskCommand(CommandBase):
         print("[+] All models downloaded.")
         await SendMythicRPCTaskUpdate(MythicRPCTaskUpdateMessage(
             TaskID=taskData.Task.ID,
-            UpdateStatus = "Generating"
+            UpdateStatus = "Querying database"
         ))
 
         chat_response = await self.generate_text(llm_model_path, embeddings, n_gpu_layers, taskData)
