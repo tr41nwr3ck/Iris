@@ -157,7 +157,8 @@ class AskCommand(CommandBase):
                 reranker_model = buildParam.Value
 
         set_global_tokenizer(
-            # Setting a max length on the tokenizer due to not able to really control what comes out of it, this might cause issues with the data?
+            # Token indices sequence length is longer than the specified maximum sequence length for this model (576 > 512). Running this sequence through the model will result in indexing errors
+            # This is caused by the embedding_model not matching the reranker_model
             AutoTokenizer.from_pretrained(
                 config_map[reranker_model],
                 model_max_length=512

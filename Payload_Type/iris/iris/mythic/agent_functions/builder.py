@@ -44,8 +44,8 @@ class Iris(PayloadType):
         BuildParameter(
             name="Embedding",
             parameter_type=BuildParameterType.ChooseOne,
-            choices=["hkunlp/instructor-xl","TaylorAI/gte-tiny"],
-            default_value="hkunlp/instructor-xl",
+            choices=["hkunlp/instructor-base","TaylorAI/gte-tiny"],
+            default_value="hkunlp/instructor-base",
             description="The embedding model to use"
         ),
         BuildParameter(
@@ -79,7 +79,7 @@ class Iris(PayloadType):
         print("Downloading Standard Model")
         try:
             llm_model_path = hf_hub_download(self.get_parameter("LLM"), filename=model_map[self.get_parameter("LLM")], local_files_only=True)
-        except:
+        except Exception as e:
             llm_model_path = hf_hub_download(self.get_parameter("LLM"), filename=model_map[self.get_parameter("LLM")])
         
 
@@ -98,7 +98,8 @@ class Iris(PayloadType):
                 StepStdout="Succesfully downloaded {}".format(self.get_parameter("Embedding"),),
                 StepSuccess=True
             )) 
-        except:
+        except Exception as e:
+            print(e)
             await SendMythicRPCPayloadUpdatebuildStep(MythicRPCPayloadUpdateBuildStepMessage(
                 PayloadUUID=self.uuid,
                 StepName="Download Embeddings",
@@ -106,6 +107,7 @@ class Iris(PayloadType):
                 StepSuccess=False
             )) 
             print("Failed to get embedding model.")
+            return
 
         print("Downloading Reranker Model")
         try:
@@ -125,7 +127,8 @@ class Iris(PayloadType):
                 StepStdout="Successfully downloaded {}".format(self.get_parameter("Reranker"),),
                 StepSuccess=True
             )) 
-        except:
+        except Exception as e:
+            print(e)
             await SendMythicRPCPayloadUpdatebuildStep(MythicRPCPayloadUpdateBuildStepMessage(
                 PayloadUUID=self.uuid,
                 StepName="Download Reranker",
@@ -133,6 +136,7 @@ class Iris(PayloadType):
                 StepSuccess=False
             )) 
             print("Failed to get reranker")
+            return
 
         # this function gets called to create an instance of your payload
         resp = BuildResponse(status=BuildStatus.Success)
