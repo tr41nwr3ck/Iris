@@ -68,7 +68,7 @@ class AskCommand(CommandBase):
     async def generate_text(self, llm_model_path, embeddings, n_gpu_layers, taskData):
         print("[+] Querying Data.")
         #index = VectorStoreIndex.from_documents(self.query_graphql(taskData.Secrets[GRAPHQL_API_KEY]), embed_model=embeddings)
-        index = VectorStoreIndex.from_documents(await self.query_all(taskData.Secrets[GRAPHQL_API_KEY]), embed_model=embeddings)
+        index = VectorStoreIndex.from_documents(await self.query_all(taskData.Secrets[GRAPHQL_API_KEY]), embed_model=embeddings,)
         #index = VectorStoreIndex.from_documents(self.query_files(graphql_key), embed_model=embeddings)
         prompt_template = """
 ### System:
@@ -153,7 +153,11 @@ class AskCommand(CommandBase):
                 reranker_model = buildParam.Value
 
         set_global_tokenizer(
-            AutoTokenizer.from_pretrained(config_map[reranker_model]).encode(max_length=512)
+            # Setting a max length on the tokenizer due to not able to really control what comes out of it, this might cause issues with the data?
+            AutoTokenizer.from_pretrained(
+                config_map[reranker_model],
+                model_max_length=512
+            ).encode
         )
         
         if GRAPHQL_API_KEY not in taskData.Secrets:
