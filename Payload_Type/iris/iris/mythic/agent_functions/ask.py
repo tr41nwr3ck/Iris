@@ -99,7 +99,9 @@ class AskCommand(CommandBase):
         print("[+] Creating Chat Memory.")
         memory = ChatMemoryBuffer.from_defaults(token_limit=1500)
         prompt_template += f"""Question: {taskData.args.get_arg("question")}"""
-        single_turn_prompt = f"### System:\nYou are an AI Assistant who can answer technical questions based on information.\n### User:\n{prompt_template}\n### Assistant:\n"     
+
+        ### Todo: Update this prompt to follow the right template based on LLM specified
+        single_turn_prompt = f"<｜begin▁of▁sentence｜><|Assistant|>\nYou are an AI Assistant who can answer technical questions based on information.\n<|User|>\n{prompt_template}\n<|Assistant|><｜end▁of▁sentence｜>\n"     
         print("[+] Starting Chat Engine.")   
         chat_engine = index.as_chat_engine(
             chat_mode="context", #https://github.com/run-llama/llama_index/blob/2ba13544cd2583418cbeade5bea45ff1da7bb7b8/llama-index-core/llama_index/core/chat_engine/types.py#L298
