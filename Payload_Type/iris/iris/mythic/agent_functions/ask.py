@@ -153,7 +153,7 @@ class AskCommand(CommandBase):
                 reranker_model = buildParam.Value
 
         set_global_tokenizer(
-            AutoTokenizer.from_pretrained(config_map[reranker_model]).encode
+            AutoTokenizer.from_pretrained(config_map[reranker_model]).encode(max_length=512)
         )
         
         if GRAPHQL_API_KEY not in taskData.Secrets:
