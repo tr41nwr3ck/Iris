@@ -44,8 +44,8 @@ class Iris(PayloadType):
         BuildParameter(
             name="Embedding",
             parameter_type=BuildParameterType.ChooseOne,
-            choices=["hkunlp/instructor-base","TaylorAI/gte-tiny"],
-            default_value="hkunlp/instructor-base",
+            choices=["TaylorAI/gte-tiny"],
+            default_value="TaylorAI/gte-tiny",
             description="The embedding model to use"
         ),
         BuildParameter(

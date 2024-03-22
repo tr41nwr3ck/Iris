@@ -63,8 +63,18 @@ class IrisGraphQLReader(BaseReader):
         for key in result:
             entry = result[key]
             if isinstance(entry, list):
-                self.documents.extend([Document(text=yaml.dump(v)) for v in entry])
+                for v in entry:
+                    text_chunks = self.split_text(yaml.dump(v))
+                    self.documents.extend([Document(text=chunk) for chunk in text_chunks])
             else:
-                self.documents.append(Document(text=yaml.dump(entry)))
+                text_chunks = self.split_text(yaml.dump(entry))
+                self.documents.extend([Document(text=chunk) for chunk in text_chunks])
 
         return self.documents
+    
+    def split_text(self, text, max_length=512):
+        """Split the text into chunks of maximum length."""
+        chunks = []
+        for i in range(0, len(text), max_length):
+            chunks.append(text[i:i + max_length])
+        return chunks
