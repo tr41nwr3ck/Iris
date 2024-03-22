@@ -135,8 +135,9 @@ class AskCommand(CommandBase):
 
         # Sometimes configs are based on other models and don't have the config.json for the auto tokenizer, so we can map the proper ones here
         config_map = {
-            "TheBloke/neural-chat-7B-v3-3-GGUF":"TheBloke/neural-chat-7B-v3-3-GGUF",
-            "bartowski/WhiteRabbitNeo-7B-v1.5a-GGU": "WhiteRabbitNeo/WhiteRabbitNeo-7B-v1.5a"
+            "TheBloke/neural-chat-7B-v3-3-GGUF" : "TheBloke/neural-chat-7B-v3-3-GGUF",
+            "bartowski/WhiteRabbitNeo-7B-v1.5a-GGUF": "WhiteRabbitNeo/WhiteRabbitNeo-7B-v1.5a",
+            "BAAI/bge-reranker-base": "BAAI/bge-reranker-base"
         }
 
         for buildParam in taskData.BuildParameters:
@@ -148,7 +149,7 @@ class AskCommand(CommandBase):
                 reranker_model = buildParam.Value
 
         set_global_tokenizer(
-            AutoTokenizer.from_pretrained(config_map[llm_model]).encode
+            AutoTokenizer.from_pretrained(config_map[reranker_model]).encode
         )
         
         if GRAPHQL_API_KEY not in taskData.Secrets:
