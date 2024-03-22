@@ -68,7 +68,7 @@ class AskCommand(CommandBase):
     async def generate_text(self, llm_model_path, embeddings, n_gpu_layers, taskData):
         print("[+] Querying Data.")
         #index = VectorStoreIndex.from_documents(self.query_graphql(taskData.Secrets[GRAPHQL_API_KEY]), embed_model=embeddings)
-        index = VectorStoreIndex.from_documents(await self.query_all(taskData.Secrets[GRAPHQL_API_KEY]), embed_model=embeddings,)
+        index = VectorStoreIndex.from_documents(await self.query_all(taskData.Secrets[GRAPHQL_API_KEY]), embed_model=embeddings)
         #index = VectorStoreIndex.from_documents(self.query_files(graphql_key), embed_model=embeddings)
         prompt_template = """
 ### System:
