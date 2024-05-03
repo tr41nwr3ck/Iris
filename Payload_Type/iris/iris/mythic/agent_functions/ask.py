@@ -9,7 +9,7 @@ from langchain.agents import AgentExecutor, create_react_agent
 from gql.transport.requests import RequestsHTTPTransport
 from gql import Client, gql
 from langchain import hub
-from langchain.agents.output_parsers.openai_tools import OpenAIToolsAgentOutputParser
+from langchain_core.output_parsers import JsonOutputParser
 
 
 GRAPHQL_API_KEY = "GRAPHQL_API_KEY"
@@ -80,15 +80,13 @@ class AskCommand(CommandBase):
             tools=tools_list,
             llm=llama,
             prompt=react_prompt,
-            output_parser=OpenAIToolsAgentOutputParser()
+            output_parser=JsonOutputParser()
         )
 
         agent_chain = AgentExecutor.from_agent_and_tools(agent=agent, 
                                                          tools=tools_list,
                                                          verbose=True, 
                                                          memory=memory)
-        # agent_chain.max_iterations = 1
-        # agent_chain.early_stopping_method = "generate"
         question = taskData.args.get_arg("question")
 
         chat_response = await agent_chain.ainvoke(
