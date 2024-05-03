@@ -97,7 +97,7 @@ class AskCommand(CommandBase):
 
         await SendMythicRPCResponseCreate(MythicRPCResponseCreateMessage(
             TaskID=taskData.Task.ID,
-            Response=chat_response,
+            Response=str(chat_response),
         ))
         response.Success = True
         print("[+] Done.")
