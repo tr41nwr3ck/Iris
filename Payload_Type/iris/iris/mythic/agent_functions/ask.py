@@ -1,8 +1,8 @@
 from mythic_container.MythicCommandBase import *
 from mythic_container.MythicRPC import *
-from helpers.tools.GetCallbackByUUIDTool import GetCallbackByUUIDTool
-from helpers.tools.GraphQLAPIWrapper import GraphQLAPIWrapper
-from helpers.tools.ExecuteGraphQLQueryTool import ExecuteGraphQLQueryTool
+from .helpers.tools.GetCallbackByUUIDTool import GetCallbackByUUIDTool
+from .helpers.tools.GraphQLAPIWrapper import GraphQLAPIWrapper
+from .helpers.tools.ExecuteGraphQLQueryTool import ExecuteGraphQLQueryTool
 from langchain_community.chat_models import ChatOllama
 from langchain.memory import ChatMessageHistory, ConversationBufferMemory
 from langchain.agents import AgentExecutor, create_react_agent
