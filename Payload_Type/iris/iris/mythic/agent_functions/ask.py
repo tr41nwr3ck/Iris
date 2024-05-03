@@ -87,8 +87,8 @@ class AskCommand(CommandBase):
                                                          tools=tools_list,
                                                          verbose=True, 
                                                          memory=memory)
-        agent_chain.max_iterations = 1
-        agent_chain.early_stopping_method = "generate"
+        # agent_chain.max_iterations = 1
+        # agent_chain.early_stopping_method = "generate"
         question = taskData.args.get_arg("question")
 
         chat_response = await agent_chain.ainvoke(
