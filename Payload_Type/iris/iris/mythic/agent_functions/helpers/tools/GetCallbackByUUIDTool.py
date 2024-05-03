@@ -2,7 +2,7 @@ from langchain.tools import BaseTool
 from typing import Self, Type, Union
 from mythic_container.MythicCommandBase import *
 from mythic_container.MythicRPC import *
-from pydantic import BaseModel, Field, ValidationError, validate_model
+from pydantic import BaseModel, Field, ValidationError, model_validator
 import asyncio
 import json
 
@@ -15,7 +15,7 @@ class GetCallbackByUUIDTool(BaseTool):
     description = "use this tool when you need to find a specific callback and know its agent_callback_id (UUID)"
     args_schema: Type[GetCallbackByUUIDSchema] = GetCallbackByUUIDSchema
     
-    @validate_model(mode='before')
+    @model_validator(mode='before')
     def check_true(self) -> Self:
         return self
 
