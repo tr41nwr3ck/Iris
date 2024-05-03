@@ -48,20 +48,27 @@ class GetCallbackByUUIDTool(BaseTool):
         response = await SendMythicRPCCallbackSearch(search_message)
 
         if response.Success:
-            print(response.Results.count)
-            agent : MythicRPCCallbackSearchMessageResult = response.Results[0]
-            response = f"""{agent.AgentCallbackID=}
-{agent.Description=}
-{agent.User=}
-{agent.Host=}
-{agent.PID=}
-{agent.Ip=}
-{agent.ProcessName=}
-{agent.IntegrityLevel=}
-{agent.CryptoType=}
-{agent.Os=}
-{agent.Architecture=}
-{agent.Domain=}"""
-            return response
+            response_str = ""
+            for result in response.Results:
+                response_str += f"""
+==============================================
+{result.AgentCallbackID}
+==============================================
+{result.AgentCallbackID=}
+{result.Description=}
+{result.User=}
+{result.Host=}
+{result.PID=}
+{result.Ip=}
+{result.ProcessName=}
+{result.IntegrityLevel=}
+{result.CryptoType=}
+{result.Os=}
+{result.Architecture=}
+{result.Domain=}
+==============================================
+"""
+            print(response.Results.count())
+            return response_str
         else:
             return "Callback Not Found"
