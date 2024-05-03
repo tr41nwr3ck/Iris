@@ -20,14 +20,15 @@ class GetCallbackByUUIDTool(BaseTool):
         return values
 
     def _run(self, agent_callback_id: str):
-        return json.dumps({"message","Not Supported."})
-        # search_message = MythicRPCCallbackSearchMessage(AgentCallbackUUID=agent_callback_id)
-        # response = await SendMythicRPCCallbackSearch(search_message)
+        loop = asyncio.get_running_loop()
+        search_message = MythicRPCCallbackSearchMessage(AgentCallbackUUID=agent_callback_id)
+        response = loop.run_until_complete(SendMythicRPCCallbackSearch(search_message))
+        #response = await SendMythicRPCCallbackSearch(search_message)
 
-        # if response.Success:
-        #     return json.dumps(response.Results[0])
-        # else:
-        #     return json.dumps({"message","Callback Not Found"})
+        if response.Success:
+            return json.dumps(response.Results[0])
+        else:
+            return json.dumps({"message","Callback Not Found"})
 
     async def _arun(self, agent_callback_id: str):
         search_message = MythicRPCCallbackSearchMessage(AgentCallbackUUID=agent_callback_id)
