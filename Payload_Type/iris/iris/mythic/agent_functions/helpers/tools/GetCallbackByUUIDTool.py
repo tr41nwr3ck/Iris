@@ -26,16 +26,16 @@ class GetCallbackByUUIDTool(BaseTool):
         #response = await SendMythicRPCCallbackSearch(search_message)
 
         if response.Success:
-            return json.dumps(response.Results[0])
+            return json.dumps(response.Results[0].to_json())
         else:
-            return json.dumps({"message","Callback Not Found"})
+            return json.dumps({"message":"Callback Not Found"})
 
     async def _arun(self, agent_callback_id: str):
         search_message = MythicRPCCallbackSearchMessage(AgentCallbackUUID=agent_callback_id)
         response = await SendMythicRPCCallbackSearch(search_message)
 
         if response.Success:
-            print(response.Results[0].__dict__)
-            return json.dumps(response.Results[0].__dict__)
+            print(response.Results[0].to_json())
+            return json.dumps(response.Results[0].to_json())
         else:
-            return json.dumps({"message","Callback Not Found"})
+            return json.dumps({"message":"Callback Not Found"})

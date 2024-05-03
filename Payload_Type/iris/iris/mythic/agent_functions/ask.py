@@ -54,7 +54,7 @@ class AskCommand(CommandBase):
             Success=True,
         )
         llama = ChatOllama(
-            temperature=0.3,
+            temperature=0,
             model='llama3',
             base_url= "https://xbbwlp7h-11434.use.devtunnels.ms"
             #base_url= "http://localhost:11434"
@@ -78,7 +78,7 @@ class AskCommand(CommandBase):
         agent = create_react_agent(
             tools=tools_list,
             llm=llama,
-            prompt=react_prompt
+            prompt=react_prompt,
         )
 
         agent_chain = AgentExecutor.from_agent_and_tools(agent=agent, 
