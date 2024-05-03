@@ -88,7 +88,7 @@ class AskCommand(CommandBase):
 
         question = taskData.args.get_arg("question")
 
-        chat_response = agent_chain.invoke(
+        chat_response = await agent_chain.ainvoke(
             {"input": question},
             config={"configurable": {"session_id": "chat_history"}},
         )
