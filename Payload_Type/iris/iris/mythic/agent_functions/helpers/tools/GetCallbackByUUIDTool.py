@@ -24,18 +24,48 @@ class GetCallbackByUUIDTool(BaseTool):
         search_message = MythicRPCCallbackSearchMessage(AgentCallbackUUID=agent_callback_id)
         response = loop.run_until_complete(SendMythicRPCCallbackSearch(search_message))
         #response = await SendMythicRPCCallbackSearch(search_message)
-
         if response.Success:
-            return json.dumps(response.Results[0].to_json())
+            agent : MythicRPCCallbackSearchMessageResult = response.Results[0]
+            response = f"""
+{agent.AgentCallbackID=}
+{agent.Description=}
+{agent.User=}
+{agent.Host=}
+{agent.PID=}
+{agent.Ip=}
+{agent.ProcessName=}
+{agent.IntegrityLevel=}
+{agent.CryptoType=}
+{agent.Os=}
+{agent.Architecture=}
+{agent.Domain=}
+            """
+
+
+            return response
         else:
-            return json.dumps({"message":"Callback Not Found"})
+            return "Callback Not Found"
 
     async def _arun(self, agent_callback_id: str):
         search_message = MythicRPCCallbackSearchMessage(AgentCallbackUUID=agent_callback_id)
         response = await SendMythicRPCCallbackSearch(search_message)
 
         if response.Success:
-            print(response.Results[0].to_json())
-            return json.dumps(response.Results[0].to_json())
+            agent : MythicRPCCallbackSearchMessageResult = response.Results[0]
+            response = f"""
+{agent.AgentCallbackID=}
+{agent.Description=}
+{agent.User=}
+{agent.Host=}
+{agent.PID=}
+{agent.Ip=}
+{agent.ProcessName=}
+{agent.IntegrityLevel=}
+{agent.CryptoType=}
+{agent.Os=}
+{agent.Architecture=}
+{agent.Domain=}
+            """
+            return response
         else:
-            return json.dumps({"message":"Callback Not Found"})
+            return "Callback Not Found"
