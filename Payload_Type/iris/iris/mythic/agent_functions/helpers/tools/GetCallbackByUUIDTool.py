@@ -36,6 +36,6 @@ class GetCallbackByUUIDTool(BaseTool):
 
         if response.Success:
             print(str(response.Results[0]))
-            return json.dumps(str(response.Results[0]))
+            return json.dumps(response.Results[0].__dict__)
         else:
             return json.dumps({"message","Callback Not Found"})
