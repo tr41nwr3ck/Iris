@@ -68,7 +68,7 @@ class GetCallbackByUUIDTool(BaseTool):
 {result.Domain=}
 ==============================================
 """
-            print(response.Results.count())
+            print(response_str)
             return response_str
         else:
             return "Callback Not Found"
