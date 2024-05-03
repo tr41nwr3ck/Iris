@@ -81,7 +81,11 @@ class AskCommand(CommandBase):
             prompt=react_prompt
         )
 
-        agent_chain = AgentExecutor.from_agent_and_tools(agent=agent, tools=tools_list, verbose=True, memory=memory)
+        agent_chain = AgentExecutor.from_agent_and_tools(agent=agent, 
+                                                         tools=[],
+                                                         callbacks= tools_list
+                                                         verbose=True, 
+                                                         memory=memory)
 
         question = taskData.args.get_arg("question")
 
