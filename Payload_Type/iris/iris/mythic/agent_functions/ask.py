@@ -83,7 +83,7 @@ class AskCommand(CommandBase):
 
         agent_chain = AgentExecutor.from_agent_and_tools(agent=agent, 
                                                          tools=[],
-                                                         callbacks= tools_list
+                                                         callbacks= tools_list,
                                                          verbose=True, 
                                                          memory=memory)
 
