@@ -35,6 +35,7 @@ class GetCallbackByUUIDTool(BaseTool):
         response = await SendMythicRPCCallbackSearch(search_message)
 
         if response.Success:
-            return json.dumps(response.Results[0])
+            print(str(response.Results[0]))
+            return json.dumps(str(response.Results[0]))
         else:
             return json.dumps({"message","Callback Not Found"})
