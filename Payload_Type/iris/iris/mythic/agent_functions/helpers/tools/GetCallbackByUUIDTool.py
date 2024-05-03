@@ -44,7 +44,8 @@ class GetCallbackByUUIDTool(BaseTool):
 
     async def _arun(self, agent_callback_id: str):
         print(f"Agent Callback ID: {agent_callback_id}")
-        search_message = MythicRPCCallbackSearchMessage(AgentCallbackUUID=agent_callback_id)
+        search_message = MythicRPCCallbackSearchMessage(AgentCallbackUUID=agent_callback_id,
+                                                        SearchCallbackUUID=agent_callback_id)
         response = await SendMythicRPCCallbackSearch(search_message)
 
         if response.Success:
