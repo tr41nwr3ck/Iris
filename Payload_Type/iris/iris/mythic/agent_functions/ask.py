@@ -5,7 +5,7 @@ from .helpers.tools.GraphQLAPIWrapper import GraphQLAPIWrapper
 from .helpers.tools.ExecuteGraphQLQueryTool import ExecuteGraphQLQueryTool
 from langchain_community.chat_models import ChatOllama
 from langchain.memory import ChatMessageHistory, ConversationBufferMemory
-from langchain.agents import AgentExecutor, create_react_agent
+from langchain.agents import AgentExecutor, create_tool_calling_agent
 from gql.transport.requests import RequestsHTTPTransport
 from gql import Client, gql
 from langchain import hub
@@ -75,7 +75,7 @@ class AskCommand(CommandBase):
         tools_list = [getCallbackByUUIDTool]
 
         # initialize agent with tools
-        agent = create_react_agent(
+        agent = create_tool_calling_agent(
             tools=tools_list,
             llm=llama,
             prompt=react_prompt,
