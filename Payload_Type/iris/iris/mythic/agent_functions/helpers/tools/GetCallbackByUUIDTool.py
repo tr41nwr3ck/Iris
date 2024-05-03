@@ -22,7 +22,8 @@ class GetCallbackByUUIDTool(BaseTool):
     def _run(self, agent_callback_id: str):
         loop = asyncio.get_running_loop()
         search_message = MythicRPCCallbackSearchMessage(AgentCallbackUUID=agent_callback_id)
-        response = loop.run_until_complete(SendMythicRPCCallbackSearch(search_message))
+        #response = loop.run_until_complete(SendMythicRPCCallbackSearch(search_message))
+        response = asyncio.run(SendMythicRPCCallbackSearch(search_message))
         #response = await SendMythicRPCCallbackSearch(search_message)
 
         if response.Success:
