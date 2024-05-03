@@ -15,7 +15,7 @@ class GetCallbackByUUIDTool(BaseTool):
     description = "use this tool when you need to find a specific callback and know its agent_callback_id (UUID)"
     args_schema: Type[GetCallbackByUUIDSchema] = GetCallbackByUUIDSchema
     
-    @root_validator(mode='before')
+    @root_validator()
     def validate_environment(cls, values: Dict) -> Dict:
         return values
 
