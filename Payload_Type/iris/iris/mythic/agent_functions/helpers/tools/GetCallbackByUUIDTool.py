@@ -26,8 +26,7 @@ class GetCallbackByUUIDTool(BaseTool):
         #response = await SendMythicRPCCallbackSearch(search_message)
         if response.Success:
             agent : MythicRPCCallbackSearchMessageResult = response.Results[0]
-            response = f"""
-{agent.AgentCallbackID=}
+            response = f"""{agent.AgentCallbackID=}
 {agent.Description=}
 {agent.User=}
 {agent.Host=}
@@ -38,22 +37,20 @@ class GetCallbackByUUIDTool(BaseTool):
 {agent.CryptoType=}
 {agent.Os=}
 {agent.Architecture=}
-{agent.Domain=}
-            """
-
-
+{agent.Domain=}"""
             return response
         else:
             return "Callback Not Found"
 
     async def _arun(self, agent_callback_id: str):
+        print(f"Agent Callback ID: {agent_callback_id}")
         search_message = MythicRPCCallbackSearchMessage(AgentCallbackUUID=agent_callback_id)
         response = await SendMythicRPCCallbackSearch(search_message)
 
         if response.Success:
+            print(response.Results.count)
             agent : MythicRPCCallbackSearchMessageResult = response.Results[0]
-            response = f"""
-{agent.AgentCallbackID=}
+            response = f"""{agent.AgentCallbackID=}
 {agent.Description=}
 {agent.User=}
 {agent.Host=}
@@ -64,8 +61,7 @@ class GetCallbackByUUIDTool(BaseTool):
 {agent.CryptoType=}
 {agent.Os=}
 {agent.Architecture=}
-{agent.Domain=}
-            """
+{agent.Domain=}"""
             return response
         else:
             return "Callback Not Found"
