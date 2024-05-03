@@ -19,15 +19,14 @@ class GetCallbackByUUIDTool(BaseTool):
     def validate_environment(cls, values: Dict) -> Dict:
         return values
 
-    def _run(self, agent_callback_id: str):
-        raise Exception("Sync is not supported!")
-        # search_message = MythicRPCCallbackSearchMessage(AgentCallbackUUID=agent_callback_id)
-        # response = await SendMythicRPCCallbackSearch(search_message)
+    async def _run(self, agent_callback_id: str):
+        search_message = MythicRPCCallbackSearchMessage(AgentCallbackUUID=agent_callback_id)
+        response = await SendMythicRPCCallbackSearch(search_message)
 
-        # if response.Success:
-        #     return json.dumps(response.Results[0])
-        # else:
-        #     return json.dumps({"message","Callback Not Found"})
+        if response.Success:
+            return json.dumps(response.Results[0])
+        else:
+            return json.dumps({"message","Callback Not Found"})
 
     async def _arun(self, agent_callback_id: str):
         search_message = MythicRPCCallbackSearchMessage(AgentCallbackUUID=agent_callback_id)
