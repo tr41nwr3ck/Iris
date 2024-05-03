@@ -85,8 +85,6 @@ class AskCommand(CommandBase):
                                                          tools=tools_list,
                                                          verbose=True, 
                                                          memory=memory)
-        agent_chain.handle_parsing_errors = True
-
         question = taskData.args.get_arg("question")
 
         chat_response = await agent_chain.ainvoke(
