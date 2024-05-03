@@ -9,6 +9,7 @@ from langchain.agents import AgentExecutor, create_react_agent
 from gql.transport.requests import RequestsHTTPTransport
 from gql import Client, gql
 from langchain import hub
+from langchain.agents.output_parsers.openai_tools import OpenAIToolsAgentOutputParser
 
 
 GRAPHQL_API_KEY = "GRAPHQL_API_KEY"
@@ -56,7 +57,7 @@ class AskCommand(CommandBase):
         llama = ChatOllama(
             temperature=0,
             model='llama3',
-            base_url= "https://xbbwlp7h-11434.use.devtunnels.ms"
+            base_url= "https://xbbwlp7h-11434.use.devtunnels.ms",
             #base_url= "http://localhost:11434"
         )
 
@@ -79,6 +80,7 @@ class AskCommand(CommandBase):
             tools=tools_list,
             llm=llama,
             prompt=react_prompt,
+            output_parser=OpenAIToolsAgentOutputParser()
         )
 
         agent_chain = AgentExecutor.from_agent_and_tools(agent=agent, 
@@ -86,7 +88,7 @@ class AskCommand(CommandBase):
                                                          verbose=True, 
                                                          memory=memory)
         agent_chain.max_iterations = 1
-
+        agent_chain.early_stopping_method = "generate"
         question = taskData.args.get_arg("question")
 
         chat_response = await agent_chain.ainvoke(
@@ -97,7 +99,7 @@ class AskCommand(CommandBase):
 
         await SendMythicRPCResponseCreate(MythicRPCResponseCreateMessage(
             TaskID=taskData.Task.ID,
-            Response=str(chat_response),
+            Response=chat_response["output"]
         ))
         response.Success = True
         print("[+] Done.")
