@@ -71,6 +71,5 @@ class GetCallbackByUUIDTool(BaseTool):
 """
             print(response_str)
             return response_str
-            #return response.Results[0].to_json()
         else:
             return json.dumps({"message":"Callback Not Found"})
