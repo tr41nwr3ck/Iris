@@ -57,6 +57,7 @@ class AskCommand(CommandBase):
         )
         llama = ChatOllama(
             temperature=0,
+            verbose=True
             model='llama3',
             base_url= "https://xbbwlp7h-11434.use.devtunnels.ms",
             #base_url= "http://localhost:11434"
