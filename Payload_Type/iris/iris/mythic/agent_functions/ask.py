@@ -10,7 +10,7 @@ from langchain.agents import AgentExecutor, create_react_agent
 from gql.transport.requests import RequestsHTTPTransport
 from gql import Client, gql
 from langchain import hub
-from langchain_core.output_parsers import JsonOutputParser
+from langchain_core.output_parsers import JsonOutputParser, StrOutputParser
 
 
 GRAPHQL_API_KEY = "GRAPHQL_API_KEY"
@@ -84,6 +84,7 @@ class AskCommand(CommandBase):
             tools=tools_list,
             llm=llama,
             prompt=react_prompt,
+            output_parser=JsonOutputParser()
         )
         agent_executor = AgentExecutor.from_agent_and_tools(agent=agent, 
                                                          tools=tools_list)
