@@ -5,6 +5,7 @@ from .helpers.tools.GraphQLAPIWrapper import GraphQLAPIWrapper
 from .helpers.tools.ExecuteGraphQLQueryTool import ExecuteGraphQLQueryTool
 from langchain_community.chat_models import ChatOllama
 from langchain.memory import ChatMessageHistory, ConversationBufferMemory
+from langchain_core.runnables.history import RunnableWithMessageHistory
 from langchain.agents import AgentExecutor, create_react_agent
 from gql.transport.requests import RequestsHTTPTransport
 from gql import Client, gql
@@ -62,7 +63,10 @@ class AskCommand(CommandBase):
         )
 
         # initialize conversational memory
-        memory = ConversationBufferMemory(memory_key="chat_history", chat_memory=ChatMessageHistory())
+        # Probably going to have to change this to a file backed memory
+        memory = ChatMessageHistory(session_id="chat_history")
+        # memory = ConversationBufferMemory(memory_key="chat_history", chat_memory=ChatMessageHistory())
+        # agent_memory = ConversationBufferWindowMemory(k=1, memory_key="chat_history", return_messages=True)
 
         react_prompt = hub.pull("hwchase17/react")
         # transport = RequestsHTTPTransport(url=API_URL, headers=HEADERS, verify=False)
@@ -80,20 +84,25 @@ class AskCommand(CommandBase):
             tools=tools_list,
             llm=llama,
             prompt=react_prompt,
-            output_parser=JsonOutputParser()
+        )
+        agent_executor = AgentExecutor.from_agent_and_tools(agent=agent, 
+                                                         tools=tools_list)
+                
+        agent_with_chat_history = RunnableWithMessageHistory(
+            agent_executor,
+            # This is needed because in most real world scenarios, a session id is needed
+            # It isn't really used here because we are using a simple in memory ChatMessageHistory
+            lambda session_id: memory,
+            input_messages_key="input",
+            history_messages_key="chat_history",
         )
 
-        agent_chain = AgentExecutor.from_agent_and_tools(agent=agent, 
-                                                         tools=tools_list,
-                                                         verbose=True, 
-                                                         memory=memory)
         question = taskData.args.get_arg("question")
 
-        chat_response = await agent_chain.ainvoke(
+        chat_response = await agent_with_chat_history.ainvoke(
             {"input": question},
             config={"configurable": {"session_id": "chat_history"}},
         )
-
 
         await SendMythicRPCResponseCreate(MythicRPCResponseCreateMessage(
             TaskID=taskData.Task.ID,
