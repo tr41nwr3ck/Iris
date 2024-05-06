@@ -14,7 +14,7 @@ from gql.transport.requests import RequestsHTTPTransport
 from gql import Client, gql
 from langchain import hub
 from langchain_core.output_parsers import JsonOutputParser, StrOutputParser
-
+from .helpers.callbacks.TestAsyncHandler import TestAsyncHandler, MyCustomSyncHandler
 
 GRAPHQL_API_KEY = "GRAPHQL_API_KEY"
 
@@ -64,11 +64,13 @@ class AskCommand(CommandBase):
         )
         self.chat_history = ChatMessageHistory(session_id=taskData.Task.ID)
 
+        my_callbacks = [MyCustomSyncHandler(), TestAsyncHandler]
         llama = Ollama(
             temperature=0,
             verbose=True,
             model='llama3',
             base_url= "https://xbbwlp7h-11434.use.devtunnels.ms",
+            callbacks=my_callbacks
             #base_url= "http://localhost:11434"
         )
 
