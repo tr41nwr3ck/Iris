@@ -13,6 +13,8 @@ llama-index-embeddings-langchain
 llama-index-llms-openai
 llama-index-readers-graphql
 llama-index
+llama-index-ollama
+
 tiktoken
 gpt4all
 chromadb

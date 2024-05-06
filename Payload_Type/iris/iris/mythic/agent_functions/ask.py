@@ -1,20 +1,14 @@
 from mythic_container.MythicCommandBase import *
 from mythic_container.MythicRPC import *
-from .helpers.tools.GetCallbackByUUIDTool import GetCallbackByUUIDTool
+#from .helpers.tools.GetCallbackByUUIDTool import GetCallbackByUUIDTool
+from .helpers.tools.GetCallbackByUUIDTool import get_callback_by_uuid,get_callback_by_uuid_async
 from .helpers.tools.GraphQLAPIWrapper import GraphQLAPIWrapper
 from .helpers.tools.ExecuteGraphQLQueryTool import ExecuteGraphQLQueryTool
-from langchain_community.chat_models import ChatOllama
-from langchain_community.llms.ollama import Ollama
-from langchain.memory import ChatMessageHistory, ConversationBufferMemory
-from langchain_core.runnables.history import RunnableWithMessageHistory
-from langchain_core.prompts import ChatPromptTemplate
-from langchain.prompts import MessagesPlaceholder
-from langchain.agents import AgentExecutor, create_react_agent
-from gql.transport.requests import RequestsHTTPTransport
-from gql import Client, gql
-from langchain import hub
-from langchain_core.output_parsers import JsonOutputParser, StrOutputParser
 from .helpers.callbacks.TestAsyncHandler import TestAsyncHandler, MyCustomSyncHandler
+from llama_index.agent.openai import OpenAIAgent
+from llama_index.llms.ollama import Ollama
+from llama_index.core.tools import FunctionTool
+
 
 GRAPHQL_API_KEY = "GRAPHQL_API_KEY"
 
@@ -52,76 +46,35 @@ class AskCommand(CommandBase):
     argument_class = AskArguments
     attackmapping = []
     attributes = CommandAttributes()
-    chat_history = ChatMessageHistory()
-
-    def get_message_history(self, session_id: str) -> ChatMessageHistory:
-        return self.chat_history
 
     async def create_go_tasking(self, taskData: PTTaskMessageAllData) -> PTTaskCreateTaskingMessageResponse:
         response = PTTaskCreateTaskingMessageResponse(
             TaskID=taskData.Task.ID,
             Success=True,
         )
-        self.chat_history = ChatMessageHistory(session_id=taskData.Task.ID)
-
-        my_callbacks = [MyCustomSyncHandler(), TestAsyncHandler()]
         llama = Ollama(
             temperature=0,
             verbose=True,
             model='llama3',
             base_url= "https://xbbwlp7h-11434.use.devtunnels.ms",
-            callbacks=my_callbacks
             #base_url= "http://localhost:11434"
         )
 
-        question = taskData.args.get_arg("question")
+        tool = FunctionTool.from_defaults(
+            get_callback_by_uuid,
+            async_fn=get_callback_by_uuid_async,
+            name="Get Callback By UUID",
+            description="Finds a specific callback by its agent_callback_id (UUID)"
 
-        # initialize conversational memory
-        # Probably going to have to change this to a file backed memory
-        #memory = ChatMessageHistory(session_id="chat_history")
-        self.chat_history.add_user_message(question)
-        #memory.add_user_message(taskData.args.get_arg("question"))
-
-        react_prompt = hub.pull("hwchase17/react")
-
-        # transport = RequestsHTTPTransport(url=API_URL, headers=HEADERS, verify=False)
-        # gql_client = Client(transport=transport, fetch_schema_from_transport=True)
-        # gql_function = gql
-
-        # # create an instance of GraphQLAPIWrapper
-        # graphql_wrapper = GraphQLAPIWrapper(custom_headers=HEADERS, graphql_endpoint=API_URL, gql_client=gql_client, gql_function=gql_function)
-        # executeGraphqlQueryTool = ExecuteGraphQLQueryTool(graphql_wrapper=graphql_wrapper)
-        getCallbackByUUIDTool = GetCallbackByUUIDTool()
-        tools_list = [getCallbackByUUIDTool]
-        # initialize agent with tools
-        agent = create_react_agent(
-            tools=tools_list,
-            llm=llama,
-            prompt=react_prompt
         )
 
-        agent_executor = AgentExecutor(
-            agent=agent,
-            tools=tools_list,
-            verbose=True,
-            max_iterations=5,
-        )
+        agent = OpenAIAgent.from_tools([tool], llm=llama, verbose=True)
 
-        agent_with_chat_history = RunnableWithMessageHistory(
-            agent_executor,
-            self.get_message_history,
-            input_messages_key="input",
-            output_messages_key="output",
-            history_messages_key="chat_history",
-        )
 
-        chat_response = await agent_with_chat_history.with_config(configurable={'session_id': taskData.Task.ID}).ainvoke(
-            {"input": question}
-        )
-
+        chat_response = agent.achat(taskData.args.get_arg("question"))
         await SendMythicRPCResponseCreate(MythicRPCResponseCreateMessage(
             TaskID=taskData.Task.ID,
-            Response=chat_response["output"]
+            Response=chat_response
         ))
 
         response.Success = True
