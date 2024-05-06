@@ -64,7 +64,7 @@ class AskCommand(CommandBase):
         )
         self.chat_history = ChatMessageHistory(session_id=taskData.Task.ID)
 
-        my_callbacks = [MyCustomSyncHandler(), TestAsyncHandler]
+        my_callbacks = [MyCustomSyncHandler(), TestAsyncHandler()]
         llama = Ollama(
             temperature=0,
             verbose=True,
