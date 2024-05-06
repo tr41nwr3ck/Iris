@@ -4,6 +4,7 @@ from .helpers.tools.GetCallbackByUUIDTool import GetCallbackByUUIDTool
 from .helpers.tools.GraphQLAPIWrapper import GraphQLAPIWrapper
 from .helpers.tools.ExecuteGraphQLQueryTool import ExecuteGraphQLQueryTool
 from langchain_community.chat_models import ChatOllama
+from langchain_community.llms.ollama import Ollama
 from langchain.memory import ChatMessageHistory, ConversationBufferMemory
 from langchain_core.runnables.history import RunnableWithMessageHistory
 from langchain.agents import AgentExecutor, create_react_agent
@@ -55,7 +56,8 @@ class AskCommand(CommandBase):
             TaskID=taskData.Task.ID,
             Success=True,
         )
-        llama = ChatOllama(
+
+        llama = Ollama(
             temperature=0,
             verbose=True,
             model='llama3',
@@ -66,10 +68,10 @@ class AskCommand(CommandBase):
         # initialize conversational memory
         # Probably going to have to change this to a file backed memory
         memory = ChatMessageHistory(session_id="chat_history")
-        # memory = ConversationBufferMemory(memory_key="chat_history", chat_memory=ChatMessageHistory())
-        # agent_memory = ConversationBufferWindowMemory(k=1, memory_key="chat_history", return_messages=True)
+        memory.add_user_message(taskData.args.get_arg("question"))
 
         react_prompt = hub.pull("hwchase17/react")
+
         # transport = RequestsHTTPTransport(url=API_URL, headers=HEADERS, verify=False)
         # gql_client = Client(transport=transport, fetch_schema_from_transport=True)
         # gql_function = gql
@@ -85,7 +87,7 @@ class AskCommand(CommandBase):
             tools=tools_list,
             llm=llama,
             prompt=react_prompt,
-            output_parser=JsonOutputParser()
+            output_parser=StrOutputParser()
         )
         agent_executor = AgentExecutor.from_agent_and_tools(agent=agent, 
                                                          tools=tools_list)
@@ -101,9 +103,8 @@ class AskCommand(CommandBase):
 
         question = taskData.args.get_arg("question")
 
-        chat_response = await agent_with_chat_history.ainvoke(
-            {"input": question},
-            config={"configurable": {"session_id": "chat_history"}},
+        chat_response = await agent_with_chat_history.with_config(configurable={'session_id': "chat_history"}).ainvoke(
+            {"input": question}
         )
 
         await SendMythicRPCResponseCreate(MythicRPCResponseCreateMessage(
