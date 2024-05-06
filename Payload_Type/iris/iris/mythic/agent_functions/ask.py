@@ -7,6 +7,8 @@ from langchain_community.chat_models import ChatOllama
 from langchain_community.llms.ollama import Ollama
 from langchain.memory import ChatMessageHistory, ConversationBufferMemory
 from langchain_core.runnables.history import RunnableWithMessageHistory
+from langchain_core.prompts import ChatPromptTemplate
+from langchain.prompts import MessagesPlaceholder
 from langchain.agents import AgentExecutor, create_react_agent
 from gql.transport.requests import RequestsHTTPTransport
 from gql import Client, gql
@@ -78,7 +80,18 @@ class AskCommand(CommandBase):
         self.chat_history.add_user_message(question)
         #memory.add_user_message(taskData.args.get_arg("question"))
 
-        react_prompt = hub.pull("hwchase17/react")
+        # react_prompt = hub.pull("hwchase17/react")
+        react_prompt = ChatPromptTemplate.from_messages(
+            [
+                (
+                    "system",
+                    "You are a helpful AI assistant. Please answer all questions to the best of your ability",
+                ),
+                MessagesPlaceholder(variable_name="chat_history"),
+                ("human", "{input}"),
+                MessagesPlaceholder(variable_name="agent_scratchpad"),
+            ]
+        )
 
         # transport = RequestsHTTPTransport(url=API_URL, headers=HEADERS, verify=False)
         # gql_client = Client(transport=transport, fetch_schema_from_transport=True)
@@ -108,6 +121,7 @@ class AskCommand(CommandBase):
             agent_executor,
             self.get_message_history,
             input_messages_key="input",
+            output_messages_key="output",
             history_messages_key="chat_history",
         )
 
