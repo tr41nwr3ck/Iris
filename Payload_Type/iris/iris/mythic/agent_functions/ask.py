@@ -97,8 +97,7 @@ class AskCommand(CommandBase):
         agent = create_react_agent(
             tools=tools_list,
             llm=llama,
-            prompt=react_prompt,
-            output_parser=StrOutputParser()
+            prompt=react_prompt
         )
 
         agent_executor = AgentExecutor(
