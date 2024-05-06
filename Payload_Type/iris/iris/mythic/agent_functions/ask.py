@@ -5,9 +5,9 @@ from .helpers.tools.GetCallbackByUUIDTool import get_callback_by_uuid,get_callba
 from .helpers.tools.GraphQLAPIWrapper import GraphQLAPIWrapper
 from .helpers.tools.ExecuteGraphQLQueryTool import ExecuteGraphQLQueryTool
 from .helpers.callbacks.TestAsyncHandler import TestAsyncHandler, MyCustomSyncHandler
-from llama_index.agent.openai import OpenAIAgent
 from llama_index.llms.ollama import Ollama
 from llama_index.core.tools import FunctionTool
+from llama_index.core.agent import ReActAgent
 
 
 GRAPHQL_API_KEY = "GRAPHQL_API_KEY"
@@ -67,8 +67,7 @@ class AskCommand(CommandBase):
             description="Finds a specific callback by its agent_callback_id (UUID)"
 
         )
-
-        agent = OpenAIAgent.from_tools([tool], llm=llama, verbose=True)
+        agent = ReActAgent.from_tools([tool], llm=llama, verbose=True)
 
 
         chat_response = agent.achat(taskData.args.get_arg("question"))
