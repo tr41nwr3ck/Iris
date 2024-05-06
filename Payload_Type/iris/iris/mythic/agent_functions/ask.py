@@ -67,11 +67,12 @@ class AskCommand(CommandBase):
         llama = Ollama(
             temperature=0,
             verbose=True,
-            model='llama3',
+            #model='llama3',
+            model="mixtral",
             base_url= "https://xbbwlp7h-11434.use.devtunnels.ms",
             #base_url= "http://localhost:11434"
         )
-        
+
         question = taskData.args.get_arg("question")
 
         # initialize conversational memory
@@ -80,18 +81,7 @@ class AskCommand(CommandBase):
         self.chat_history.add_user_message(question)
         #memory.add_user_message(taskData.args.get_arg("question"))
 
-        # react_prompt = hub.pull("hwchase17/react")
-        react_prompt = ChatPromptTemplate.from_messages(
-            [
-                (
-                    "system",
-                    "You are a helpful AI assistant. Please answer all questions to the best of your ability",
-                ),
-                MessagesPlaceholder(variable_name="chat_history"),
-                ("human", "{input}"),
-                MessagesPlaceholder(variable_name="agent_scratchpad"),
-            ]
-        )
+        react_prompt = hub.pull("hwchase17/react")
 
         # transport = RequestsHTTPTransport(url=API_URL, headers=HEADERS, verify=False)
         # gql_client = Client(transport=transport, fetch_schema_from_transport=True)
@@ -102,7 +92,6 @@ class AskCommand(CommandBase):
         # executeGraphqlQueryTool = ExecuteGraphQLQueryTool(graphql_wrapper=graphql_wrapper)
         getCallbackByUUIDTool = GetCallbackByUUIDTool()
         tools_list = [getCallbackByUUIDTool]
-
         # initialize agent with tools
         agent = create_react_agent(
             tools=tools_list,
