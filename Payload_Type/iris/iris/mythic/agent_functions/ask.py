@@ -70,7 +70,7 @@ class AskCommand(CommandBase):
         agent = ReActAgent.from_tools([tool], llm=llama, verbose=True)
 
 
-        chat_response = agent.achat(taskData.args.get_arg("question"))
+        chat_response = await agent.achat(taskData.args.get_arg("question"))
         await SendMythicRPCResponseCreate(MythicRPCResponseCreateMessage(
             TaskID=taskData.Task.ID,
             Response=chat_response
