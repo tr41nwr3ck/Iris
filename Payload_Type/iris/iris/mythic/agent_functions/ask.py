@@ -49,13 +49,18 @@ class AskCommand(CommandBase):
     author = "@checkymander"
     argument_class = AskArguments
     attackmapping = []
-    attributes = CommandAttributes(
-    )
+    attributes = CommandAttributes()
+    chat_history = ChatMessageHistory("chat_history")
+
+    def get_message_history(self, session_id: str) -> ChatMessageHistory:
+        return self.chat_history
+
     async def create_go_tasking(self, taskData: PTTaskMessageAllData) -> PTTaskCreateTaskingMessageResponse:
         response = PTTaskCreateTaskingMessageResponse(
             TaskID=taskData.Task.ID,
             Success=True,
         )
+        self.chat_history = ChatMessageHistory(taskData.Task.ID)
 
         llama = Ollama(
             temperature=0,
@@ -64,11 +69,14 @@ class AskCommand(CommandBase):
             base_url= "https://xbbwlp7h-11434.use.devtunnels.ms",
             #base_url= "http://localhost:11434"
         )
+        
+        question = taskData.args.get_arg("question")
 
         # initialize conversational memory
         # Probably going to have to change this to a file backed memory
-        memory = ChatMessageHistory(session_id="chat_history")
-        memory.add_user_message(taskData.args.get_arg("question"))
+        #memory = ChatMessageHistory(session_id="chat_history")
+        self.chat_history.add_user_message(question)
+        #memory.add_user_message(taskData.args.get_arg("question"))
 
         react_prompt = hub.pull("hwchase17/react")
 
@@ -87,23 +95,23 @@ class AskCommand(CommandBase):
             tools=tools_list,
             llm=llama,
             prompt=react_prompt,
-            output_parser=StrOutputParser()
         )
-        agent_executor = AgentExecutor.from_agent_and_tools(agent=agent, 
-                                                         tools=tools_list)
-                
+
+        agent_executor = AgentExecutor(
+            agent=agent,
+            tools=tools_list,
+            verbose=True,
+            max_iterations=5,
+        )
+
         agent_with_chat_history = RunnableWithMessageHistory(
             agent_executor,
-            # This is needed because in most real world scenarios, a session id is needed
-            # It isn't really used here because we are using a simple in memory ChatMessageHistory
-            lambda session_id: memory,
+            self.get_message_history,
             input_messages_key="input",
             history_messages_key="chat_history",
         )
 
-        question = taskData.args.get_arg("question")
-
-        chat_response = await agent_with_chat_history.with_config(configurable={'session_id': "chat_history"}).ainvoke(
+        chat_response = await agent_with_chat_history.with_config(configurable={'session_id': taskData.Task.ID}).ainvoke(
             {"input": question}
         )
 
@@ -111,6 +119,7 @@ class AskCommand(CommandBase):
             TaskID=taskData.Task.ID,
             Response=chat_response["output"]
         ))
+        
         response.Success = True
         print("[+] Done.")
         await SendMythicRPCTaskUpdate(MythicRPCTaskUpdateMessage(
