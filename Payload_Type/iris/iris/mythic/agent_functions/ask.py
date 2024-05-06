@@ -63,7 +63,7 @@ class AskCommand(CommandBase):
         tool = FunctionTool.from_defaults(
             get_callback_by_uuid,
             async_fn=get_callback_by_uuid_async,
-            name="Get Callback By UUID",
+            name="GetCallbackByUUID",
             description="Finds a specific callback by its agent_callback_id (UUID)"
 
         )
