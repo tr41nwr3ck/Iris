@@ -50,7 +50,7 @@ class AskCommand(CommandBase):
     argument_class = AskArguments
     attackmapping = []
     attributes = CommandAttributes()
-    chat_history = ChatMessageHistory("chat_history")
+    chat_history = ChatMessageHistory()
 
     def get_message_history(self, session_id: str) -> ChatMessageHistory:
         return self.chat_history
