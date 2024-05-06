@@ -60,7 +60,7 @@ class AskCommand(CommandBase):
             TaskID=taskData.Task.ID,
             Success=True,
         )
-        self.chat_history = ChatMessageHistory(taskData.Task.ID)
+        self.chat_history = ChatMessageHistory(session_id=taskData.Task.ID)
 
         llama = Ollama(
             temperature=0,
@@ -119,7 +119,7 @@ class AskCommand(CommandBase):
             TaskID=taskData.Task.ID,
             Response=chat_response["output"]
         ))
-        
+
         response.Success = True
         print("[+] Done.")
         await SendMythicRPCTaskUpdate(MythicRPCTaskUpdateMessage(
