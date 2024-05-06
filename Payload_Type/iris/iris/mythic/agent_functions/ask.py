@@ -68,7 +68,7 @@ class AskCommand(CommandBase):
             temperature=0,
             verbose=True,
             #model='llama3',
-            model="mixtral",
+            model="mistral",
             base_url= "https://xbbwlp7h-11434.use.devtunnels.ms",
             #base_url= "http://localhost:11434"
         )
