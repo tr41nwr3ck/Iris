@@ -33,10 +33,16 @@ class MythicRPCSpec(BaseToolSpec):
             return f"Failed to issue task: {response.Error}"
         
     async def map_callback_number_to_agent_callback_id(self, callback: int):
+        callback_to_id_response = await SendMythicRPCCallbackDisplayToRealIdSearch(MythicRPCCallbackDisplayToRealIdSearchMessage(CallbackDisplayID=callback, OperationID=self._operation_id))
+
+        if not callback_to_id_response.Success:
+            return "Agent ID not found"
+        
         search_message = MythicRPCCallbackSearchMessage(AgentCallbackUUID=self._scope,
-                                                        SearchCallbackID=callback)
+                                                        SearchCallbackID=callback_to_id_response.CallbackID)
         response = await SendMythicRPCCallbackSearch(search_message)
         if response.Success:
             return response.Results[0].AgentCallbackID
         else:
             return "Agent ID not found"
+        
