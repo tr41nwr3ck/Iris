@@ -60,13 +60,13 @@ class AskCommand(CommandBase):
             #base_url= "http://localhost:11434"
         )
 
-        tool = FunctionTool.from_defaults(
-            get_callback_by_uuid,
-            async_fn=get_callback_by_uuid_async,
-            name="GetCallbackByUUID",
-            description="Finds a specific callback by its agent_callback_id (UUID)"
+        # tool = FunctionTool.from_defaults(
+        #     get_callback_by_uuid,
+        #     async_fn=get_callback_by_uuid_async,
+        #     name="GetCallbackByUUID",
+        #     description="Finds a specific callback by its agent_callback_id (UUID)"
 
-        )
+        # )
         agent = ReActAgent.from_tools([tool], llm=llama, verbose=True)
         chat_response = await agent.achat(taskData.args.get_arg("question"))
         await SendMythicRPCResponseCreate(MythicRPCResponseCreateMessage(
