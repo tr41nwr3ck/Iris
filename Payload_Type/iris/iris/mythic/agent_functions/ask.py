@@ -5,6 +5,7 @@ from .helpers.tools.GetCallbackByUUIDTool import get_callback_by_uuid,get_callba
 from .helpers.tools.GraphQLAPIWrapper import GraphQLAPIWrapper
 from .helpers.tools.ExecuteGraphQLQueryTool import ExecuteGraphQLQueryTool
 from .helpers.callbacks.TestAsyncHandler import TestAsyncHandler, MyCustomSyncHandler
+from .helpers.tools.MythicRPCSpec import MythicRPCSpec
 from llama_index.llms.ollama import Ollama
 from llama_index.core.tools import FunctionTool
 from llama_index.core.agent import ReActAgent
@@ -67,7 +68,9 @@ class AskCommand(CommandBase):
         #     description="Finds a specific callback by its agent_callback_id (UUID)"
 
         # )
-        agent = ReActAgent.from_tools([tool], llm=llama, verbose=True)
+
+        mythic_spec = MythicRPCSpec()
+        agent = ReActAgent.from_tools(mythic_spec.to_tool_list(), llm=llama, verbose=True)
         chat_response = await agent.achat(taskData.args.get_arg("question"))
         await SendMythicRPCResponseCreate(MythicRPCResponseCreateMessage(
             TaskID=taskData.Task.ID,
