@@ -5,10 +5,12 @@ import json
 
 class MythicRPCSpec(BaseToolSpec):
     spec_functions = ["get_callback_by_uuid_async", "task_callback"]
-    _scope:str = None
+    _scope: str = None
+    _operation_id: int = 0
 
-    def __init__(self, scope: str):
+    def __init__(self, scope: str, operation_id: int):
         self._scope: str = scope
+        self._operation_id: int = operation_id
 
     async def get_callback_by_uuid_async(self, agent_callback_id: str) -> str:
         """Finds a specific callback by its agent_callback_id (UUID)"""
@@ -29,3 +31,12 @@ class MythicRPCSpec(BaseToolSpec):
             return "Task issued."
         else:
             return f"Failed to issue task: {response.Error}"
+        
+    async def map_callback_number_to_agent_callback_id(self, callback: int):
+        search_message = MythicRPCCallbackSearchMessage(AgentCallbackUUID=self._scope,
+                                                        SearchCallbackID=callback)
+        response = await SendMythicRPCCallbackSearch(search_message)
+        if response.Success:
+            return response.Results[0].AgentCallbackID
+        else:
+            return "Agent ID not found"

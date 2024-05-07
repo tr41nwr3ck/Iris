@@ -60,7 +60,7 @@ class AskCommand(CommandBase):
 
         # )
 
-        mythic_spec = MythicRPCSpec(scope=taskData.Callback.AgentCallbackID)
+        mythic_spec = MythicRPCSpec(scope=taskData.Callback.AgentCallbackID, operation_id=taskData.Callback.OperationID)
         agent = ReActAgent.from_tools(mythic_spec.to_tool_list(), llm=llama, verbose=True)
         chat_response = await agent.achat(taskData.args.get_arg("question"))
         await SendMythicRPCResponseCreate(MythicRPCResponseCreateMessage(
