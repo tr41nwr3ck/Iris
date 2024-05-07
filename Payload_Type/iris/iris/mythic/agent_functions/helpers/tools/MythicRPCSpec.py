@@ -9,11 +9,7 @@ import asyncio
 import json
 
 class MythicRPCSpec(BaseToolSpec):
-    spec_functions = ["get_callback_by_uuid_async"]
-
-
-    # def get_callback_by_uuid(self, agent_callback_id: str) -> str:
-    #     return "Sync not supported."
+    spec_functions = ["get_callback_by_uuid_async", "task_callback"]
 
     async def get_callback_by_uuid_async(self, agent_callback_id: str) -> str:
         """Finds a specific callback by its agent_callback_id (UUID)"""
@@ -23,28 +19,19 @@ class MythicRPCSpec(BaseToolSpec):
         response = await SendMythicRPCCallbackSearch(search_message)
 
         if response.Success:
-    #         response_str = ""
-    #         for result in response.Results:
-    #             response_str += f"""
-    # ==============================================
-    # {result.AgentCallbackID}
-    # ==============================================
-    # {result.AgentCallbackID=}
-    # {result.Description=}
-    # {result.User=}
-    # {result.Host=}
-    # {result.PID=}
-    # {result.Ip=}
-    # {result.ProcessName=}
-    # {result.IntegrityLevel=}
-    # {result.CryptoType=}
-    # {result.Os=}
-    # {result.Architecture=}
-    # {result.Domain=}
-    # ==============================================
-    # """
-            #print(response_str)
-            #return response_str
             return response.Results[0].to_json()
         else:
             return json.dumps({"message":"Callback Not Found"})
+    
+    async def task_callback(self, agent_callback_id:str, command:str, params: str):
+        """Executes a command on a callback specified by its agent_callback_id with parameters specified by a json string of parameter names and parameter values"""
+        print(f"Command to execute: {agent_callback_id}")
+        print(f"Parameters: {params}")
+        print(f"Agent ID: {agent_callback_id}")
+
+        response = await SendMythicRPCTaskCreate(MythicRPCTaskCreateMessage(AgentCallbackID=agent_callback_id, CommandName=command, Params=params))
+
+        if response.Success:
+            return "Task issued."
+        else:
+            return f"Failed to issue task: {response.Error}"
