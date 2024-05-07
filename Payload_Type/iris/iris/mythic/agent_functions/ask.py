@@ -1,17 +1,8 @@
 from mythic_container.MythicCommandBase import *
 from mythic_container.MythicRPC import *
-#from .helpers.tools.GetCallbackByUUIDTool import GetCallbackByUUIDTool
-from .helpers.tools.GetCallbackByUUIDTool import get_callback_by_uuid,get_callback_by_uuid_async
-from .helpers.tools.GraphQLAPIWrapper import GraphQLAPIWrapper
-from .helpers.tools.ExecuteGraphQLQueryTool import ExecuteGraphQLQueryTool
-from .helpers.callbacks.TestAsyncHandler import TestAsyncHandler, MyCustomSyncHandler
 from .helpers.tools.MythicRPCSpec import MythicRPCSpec
 from llama_index.llms.ollama import Ollama
-from llama_index.core.tools import FunctionTool
 from llama_index.core.agent import ReActAgent
-
-
-GRAPHQL_API_KEY = "GRAPHQL_API_KEY"
 
 class AskArguments(TaskArguments):
     def __init__(self, command_line, **kwargs):
@@ -69,7 +60,7 @@ class AskCommand(CommandBase):
 
         # )
 
-        mythic_spec = MythicRPCSpec()
+        mythic_spec = MythicRPCSpec(scope=taskData.Callback.AgentCallbackID)
         agent = ReActAgent.from_tools(mythic_spec.to_tool_list(), llm=llama, verbose=True)
         chat_response = await agent.achat(taskData.args.get_arg("question"))
         await SendMythicRPCResponseCreate(MythicRPCResponseCreateMessage(
