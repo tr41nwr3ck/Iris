@@ -22,7 +22,7 @@ class MythicRPCSpec(BaseToolSpec):
                                                         SearchCallbackUUID=agent_callback_id)
         response = await SendMythicRPCCallbackSearch(search_message)
 
-        if response.Success and len(response.Results) > 0:
+        if response.Success:
     #         response_str = ""
     #         for result in response.Results:
     #             response_str += f"""
