@@ -4,7 +4,7 @@ from mythic_container.MythicRPC import *
 import json
 
 class MythicRPCSpec(BaseToolSpec):
-    spec_functions = ["get_callback_by_uuid_async", "task_callback"]
+    spec_functions = ["get_callback_by_uuid_async", "task_callback", "map_callback_number_to_agent_callback_id"]
     _scope: str = None
     _operation_id: int = 0
 
@@ -14,8 +14,11 @@ class MythicRPCSpec(BaseToolSpec):
 
     async def get_callback_by_uuid_async(self, agent_callback_id: str) -> str:
         """Finds a specific callback by its agent_callback_id (UUID)"""
+
+        id = await self._check_valid_id(agent_callback_id)
+
         search_message = MythicRPCCallbackSearchMessage(AgentCallbackUUID=self._scope,
-                                                        SearchCallbackUUID=agent_callback_id)
+                                                        SearchCallbackUUID=id)
         response = await SendMythicRPCCallbackSearch(search_message)
 
         if response.Success:
@@ -25,7 +28,9 @@ class MythicRPCSpec(BaseToolSpec):
     
     async def task_callback(self, agent_callback_id:str, command:str, params: str):
         """Executes a command on a callback specified by its agent_callback_id with parameters specified by a json string of parameter names and parameter values"""
-        response = await SendMythicRPCTaskCreate(MythicRPCTaskCreateMessage(AgentCallbackID=agent_callback_id, CommandName=command, Params=params))
+        id = await self._check_valid_id(agent_callback_id)
+        
+        response = await SendMythicRPCTaskCreate(MythicRPCTaskCreateMessage(AgentCallbackID=id, CommandName=command, Params=params))
 
         if response.Success:
             return "Task issued."
@@ -41,4 +46,22 @@ class MythicRPCSpec(BaseToolSpec):
             return response.Results[0].AgentCallbackID
         else:
             return "Agent ID not found"
-        
+    
+    def _is_valid_uuid(self, val):
+        try:
+            uuid.UUID(str(val))
+            return True
+        except ValueError:
+            return False
+    
+    async def _check_valid_id(self, val) -> str:
+        if self._is_valid_uuid(val):
+            return val
+        else:
+            try:
+                id = await self.map_callback_number_to_agent_callback_id(callback=val)
+                if self._is_valid_uuid(id):
+                    return id
+            except:
+                return ""
+        return ""
